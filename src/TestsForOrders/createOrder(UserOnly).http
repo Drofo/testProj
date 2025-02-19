@@ -1,0 +1,7 @@
+POST http://localhost:8080/graphql
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "query": "mutation { createOrder(input: { userId: 4, restaurantId: 4, items: [{ dishId: 3, quantity: 5 }] }) { id status user { username } restaurant { name } orderItems { dish { name } quantity } } }"
+}

@@ -1,0 +1,2 @@
+GET http://localhost:8080/api/protected
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuZXdhZG1pbiIsImV4cCI6MTczODI1NzU3MCwiaWF0IjoxNzM4MjUzOTcwfQ.NbwpYREbSutu688PArBsDNxr98JGdBXZXvAKU-fTuAo

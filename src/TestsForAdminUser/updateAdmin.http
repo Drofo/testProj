@@ -1,0 +1,7 @@
+POST http://localhost:8080/graphql
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "query": "mutation { updateUser(id: 4, input: { username: \"user\", fullName: \"Updated Name1\" }) { id username fullName role } }"
+}

@@ -1,0 +1,7 @@
+POST http://localhost:8080/graphql
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTczODI2NzE4MywiaWF0IjoxNzM4MjYzNTgzfQ.MLTpetnkiujXhAwfotpYolF6fz1plOTKHsVbVHXp6yo
+
+{
+  "query": "query { user(id: 5) { id username fullName role } }"
+}

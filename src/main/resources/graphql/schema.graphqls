@@ -1,0 +1,121 @@
+type Query {
+    users: [User]
+    user(id: ID!): User
+
+    restaurants: [Restaurant]
+    restaurant(id: ID!): Restaurant
+
+    dishes: [Dish]
+    dish(id: ID!): Dish
+    dishesByRestaurant(restaurantId: ID!): [Dish]
+
+    orders: [Order]
+    order(id: ID!): Order
+}
+
+type Mutation {
+    createUser(input: CreateUserInput!): User
+    updateUser(id: ID!, input: UpdateUserInput!): User
+    deleteUser(id: ID!): Boolean
+
+    createRestaurant(input: CreateRestaurantInput!): Restaurant
+    updateRestaurant(id: ID!, input: UpdateRestaurantInput!): Restaurant
+    deleteRestaurant(id: ID!): Boolean
+
+    createDish(input: CreateDishInput!): Dish
+    updateDish(id: ID!, input: UpdateDishInput!): Dish
+    deleteDish(id: ID!): Boolean
+
+    createOrder(input: CreateOrderInput!): Order
+    updateOrderStatus(orderId: ID!, status: String!): Order
+    deleteOrder(id: ID!): Boolean
+    assignOrderToCourier(orderId: ID!): Order
+}
+
+type User {
+    id: ID!
+    username: String!
+    role: String!
+    fullName: String
+    createdAt: String
+}
+
+type Restaurant {
+    id: ID!
+    name: String!
+    address: String
+    createdAt: String
+    owner: User!
+}
+
+type Dish {
+    id: ID!
+    name: String!
+    price: Float!
+    restaurant: Restaurant
+    createdAt: String
+}
+
+type Order {
+    id: ID!
+    user: User
+    restaurant: Restaurant
+    status: String!
+    createdAt: String
+    updatedAt: String
+    orderItems: [OrderItem]
+}
+
+type OrderItem {
+    id: ID!
+    dish: Dish
+    quantity: Int!
+    createdAt: String
+}
+
+input CreateUserInput {
+    username: String!
+    password: String!
+    role: String!
+    fullName: String
+}
+
+input UpdateUserInput {
+    username: String
+    password: String
+    role: String
+    fullName: String
+}
+
+input CreateRestaurantInput {
+    name: String!
+    address: String
+    ownerId: ID!
+}
+
+input UpdateRestaurantInput {
+    name: String
+    address: String
+}
+
+input CreateDishInput {
+    name: String!
+    price: Float!
+    restaurantId: ID!
+}
+
+input UpdateDishInput {
+    name: String
+    price: Float
+}
+
+input CreateOrderInput {
+    userId: ID!
+    restaurantId: ID!
+    items: [OrderItemInput!]!
+}
+
+input OrderItemInput {
+    dishId: ID!
+    quantity: Int!
+}

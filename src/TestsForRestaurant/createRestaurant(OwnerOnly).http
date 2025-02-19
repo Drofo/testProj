@@ -1,0 +1,7 @@
+POST http://localhost:8080/graphql
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "query": "mutation { createRestaurant(input: {name: \"My Pizza Place12345\", address: \"123 Main St\", ownerId: 9}) { id name address owner { username } } }"
+}

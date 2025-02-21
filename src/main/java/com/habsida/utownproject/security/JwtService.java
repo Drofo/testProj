@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -18,9 +21,10 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Set<String> roles) {
         return JWT.create()
                 .withSubject(username)
+                .withClaim("roles", roles.stream().toList())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .sign(Algorithm.HMAC256(secret));
@@ -32,6 +36,17 @@ public class JwtService {
                     .build()
                     .verify(token)
                     .getSubject();
+        } catch (JWTVerificationException e) {
+            return null;
+        }
+    }
+
+    public List<String> getRolesFromToken(String token) {
+        try {
+            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret))
+                    .build()
+                    .verify(token);
+            return decodedJWT.getClaim("roles").asList(String.class);
         } catch (JWTVerificationException e) {
             return null;
         }

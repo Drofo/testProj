@@ -27,7 +27,8 @@ public class RestaurantService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = auth.getName();
 
-        User owner = userRepository.findByUsername(currentUsername);
+        User owner = userRepository.findByPhoneNumber(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + currentUsername));
         if (owner == null) {
             throw new RuntimeException("Пользователь не найден: " + currentUsername);
         }

@@ -1,6 +1,8 @@
 type Query {
     users: [User]
     user(id: ID!): User
+    getUsers: [User!]!
+    currentUser: User!
 
     restaurants: [Restaurant]
     restaurant(id: ID!): Restaurant
@@ -34,10 +36,15 @@ type Mutation {
 
 type User {
     id: ID!
-    username: String!
-    role: String!
+    phoneNumber: String!
     fullName: String
+    roles: [Role!]!
     createdAt: String
+}
+
+type Role {
+    id: ID!
+    name: String!
 }
 
 type Restaurant {

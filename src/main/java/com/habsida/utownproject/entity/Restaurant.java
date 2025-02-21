@@ -26,6 +26,12 @@ public class Restaurant {
     public Restaurant() {
     }
 
+    public Restaurant(String name, String address, User owner) {
+        this.name = name;
+        this.address = address;
+        this.owner = owner;
+    }
+
     public Restaurant(String name, String address, LocalDateTime createdAt, User owner) {
         this.name = name;
         this.address = address;

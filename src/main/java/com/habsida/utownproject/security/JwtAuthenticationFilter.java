@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -45,9 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
         String username = null;
+        List<String> roles = null;
 
         try {
             username = jwtService.validateToken(token);
+            roles = jwtService.getRolesFromToken(token);
         } catch (Exception e) {
             logger.warn("Invalid JWT Token: " + e.getMessage());
         }
@@ -56,10 +60,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             System.out.println("Авторизуем пользователя: " + userDetails.getUsername());
-            System.out.println("Роли пользователя: " + userDetails.getAuthorities());
+            System.out.println("Роли из токена: " + roles);
+
+            var authorities = roles.stream()
+                    .map(role -> "ROLE_" + role)
+                    .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
+                    .collect(Collectors.toSet());
 
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }

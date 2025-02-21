@@ -35,7 +35,9 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/login", "/register").permitAll()
-                        .requestMatchers("/api/protected").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/courier/**").hasRole("COURIER")
+                        .requestMatchers("/api/restaurant/**").hasAnyRole("RESTAURANT", "MANAGER")
                         .requestMatchers(HttpMethod.POST, "/graphql").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -43,7 +45,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, BCryptPasswordEncoder passwordEncoder) {

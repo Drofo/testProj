@@ -1,6 +1,7 @@
 package com.habsida.utownproject.controller;
 
 import com.habsida.utownproject.entity.User;
+import com.habsida.utownproject.entity.Role;
 import com.habsida.utownproject.security.JwtService;
 import com.habsida.utownproject.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,47 +41,61 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
-            System.out.println("Trying to login with username: " + request.getUsername());
+            System.out.println("Trying to login with phoneNumber: " + request.getPhoneNumber());
             System.out.println("Password entered: " + request.getPassword());
+
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(request.getPhoneNumber(), request.getPassword())
             );
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-            String token = jwtService.generateToken(userDetails.getUsername());
+            User user = userService.getUserByPhoneNumber(request.getPhoneNumber());
+
+            Set<String> roles = user.getRoles().stream()
+                    .map(Role::getName)
+                    .collect(Collectors.toSet());
+
+            String token = jwtService.generateToken(user.getPhoneNumber(), roles);
 
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(403).body("Invalid username or password");
+            return ResponseEntity.status(403).body("Invalid phone number or password");
         }
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest request) {
-        if (userService.userExists(request.getUsername())) {
-            return ResponseEntity.status(400).body("Пользователь с таким именем уже существует");
+        if (userService.userExists(request.getPhoneNumber())) {
+            return ResponseEntity.status(400).body("Пользователь с таким номером уже существует");
         }
 
         User newUser = new User();
-        newUser.setUsername(request.getUsername());
+        newUser.setPhoneNumber(request.getPhoneNumber());
         newUser.setPassword(request.getPassword());
         newUser.setFullName(request.getFullName());
-        newUser.setRole(request.getRole());
 
-        User createdUser = userService.createUser(newUser);
-        String token = jwtService.generateToken(createdUser.getUsername());
+        List<String> roles = request.getRoles() != null && !request.getRoles().isEmpty()
+                ? request.getRoles()
+                : List.of("USER");
+
+        User createdUser = userService.createUser(newUser, roles);
+
+        Set<String> roleNames = createdUser.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        String token = jwtService.generateToken(createdUser.getPhoneNumber(), roleNames);
 
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
     public static class AuthRequest {
-        private String username;
+        private String phoneNumber;
         private String password;
         private String fullName;
-        private String role;
+        private List<String> roles;
 
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
+        public String getPhoneNumber() { return phoneNumber; }
+        public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
@@ -84,8 +103,8 @@ public class AuthController {
         public String getFullName() { return fullName; }
         public void setFullName(String fullName) { this.fullName = fullName; }
 
-        public String getRole() { return role; }
-        public void setRole(String role) { this.role = role; }
+        public List<String> getRoles() { return roles; }
+        public void setRoles(List<String> roles) { this.roles = roles; }
     }
 
     public static class AuthResponse {

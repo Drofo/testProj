@@ -1,0 +1,7 @@
+POST http://localhost:8080/graphql
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "query": "query { currentUser { id phoneNumber fullName roles { name } } }"
+}
